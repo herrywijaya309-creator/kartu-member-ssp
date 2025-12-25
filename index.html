@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Card - Sumber Sari Patimura V24</title>
+    <title>Member Card - Sumber Sari Patimura V25</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -27,23 +27,21 @@
             padding: 40px;
         }
 
-        /* --- BACKGROUND SHINE (LAYER PALING BAWAH) --- */
+        /* --- BACKGROUND SHINE --- */
         .shine-layer {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(125deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0) 55%);
-            z-index: 1; /* Pastikan di bawah teks */
-            pointer-events: none;
+            z-index: 1; pointer-events: none;
         }
 
-        /* --- KONTAINER KONTEN (LAYER PALING ATAS) --- */
-        /* Ini kunci agar teks muncul di Windows: Z-Index tinggi */
+        /* --- KONTAINER KONTEN (Z-INDEX TINGGI) --- */
         .card-content-layer {
             position: relative;
-            z-index: 50; /* Jauh di atas background */
+            z-index: 50; 
             width: 100%;
         }
 
-        /* --- STYLING NAMA TOKO (SOLID COLOR FIX) --- */
+        /* --- STYLING NAMA TOKO (SOLID COLOR) --- */
         .brand-name {
             font-family: 'Oswald', Arial, sans-serif;
             font-size: 32px;
@@ -52,7 +50,6 @@
             letter-spacing: 0.05em;
             white-space: nowrap;
             line-height: 1.2;
-            /* Ganti Gradient dengan Solid Color agar tidak hilang/blocky */
             color: #FFD700; 
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
@@ -82,7 +79,7 @@
             margin: 0; white-space: nowrap; display: block;
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
             padding-bottom: 5px;
-            color: white; /* Paksa warna putih */
+            color: white; 
         }
 
         .meta-info { display: flex; gap: 40px; margin-top: 20px; }
@@ -91,26 +88,21 @@
 
         /* --- THEMES --- */
         .level-bronze { background: linear-gradient(135deg, #8E5C38 0%, #C9966D 100%); }
-        /* Fix Bronze: Brand Putih Solid */
         .level-bronze .brand-name { color: #FFFFFF; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
 
         .level-silver { background: linear-gradient(135deg, #F5F7FA 0%, #B8C6DB 100%); }
-        /* Fix Silver: Teks Gelap Solid */
         .level-silver .brand-name { color: #2c3e50; filter: none; }
         .level-silver #cardLevelText, .level-silver #cardName, .level-silver .holder-label, .level-silver .meta-label, .level-silver .meta-value { 
             color: #1a202c !important; text-shadow: none; 
         }
 
         .level-gold { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
-        /* Fix Gold: Teks Cokelat Solid */
         .level-gold .brand-name { color: #422a02; filter: none; }
         .level-gold #cardLevelText, .level-gold #cardName, .level-gold .holder-label, .level-gold .meta-label, .level-gold .meta-value { 
             color: #422a02 !important; text-shadow: none; 
         }
 
         .level-platinum { background: linear-gradient(135deg, #434343 0%, #000000 100%); }
-        /* Platinum tetap Emas Solid */
-
         .level-diamond { background: radial-gradient(circle at 100% 0%, #00c6ff 0%, #0072ff 60%, #002a8f 100%); }
         
         .level-infinite { background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%); }
@@ -141,6 +133,10 @@
                     <input type="text" id="inputName" class="w-full p-2 border rounded font-bold" value="HERRY WIJAYA" oninput="updateCard()">
                 </div>
                 <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Member Sejak (Editable)</label>
+                    <input type="text" id="inputJoin" class="w-full p-2 border border-green-200 bg-green-50 rounded font-bold" value="Des 2023" oninput="updateCard()">
+                </div>
+                <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase">ID Member (Editable)</label>
                     <div class="flex gap-2">
                         <input type="text" id="inputId" class="w-full p-2 border border-orange-200 bg-orange-50 rounded font-mono font-bold" value="M-882190" oninput="updateCard()">
@@ -161,7 +157,6 @@
         <div class="lg:col-span-8 flex flex-col items-center justify-center">
             <div id="card-wrapper">
                 <div id="card-preview" class="level-bronze">
-                    
                     <div class="shine-layer"></div>
                     
                     <div class="card-content-layer flex flex-col justify-between h-full">
@@ -184,7 +179,7 @@
                                 <h2 id="cardName">HERRY WIJAYA</h2>
                                 <div class="meta-info">
                                     <div><p class="meta-label">ID Member</p><p id="cardId" class="meta-value">M-882190</p></div>
-                                    <div><p class="meta-label">Joined</p><p class="meta-value">Des 2023</p></div>
+                                    <div><p class="meta-label">Joined</p><p id="cardJoin" class="meta-value">Des 2023</p></div>
                                 </div>
                             </div>
                             <div class="bg-white p-2 rounded-2xl shadow-xl shrink-0">
@@ -195,7 +190,7 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V24: Windows Safe Mode (Z-Index Fixed)</p>
+            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V25: Joined Date Unlocked</p>
         </div>
     </div>
 
@@ -220,13 +215,15 @@
             const level = document.getElementById('inputLevel').value;
             const name = document.getElementById('inputName').value.toUpperCase();
             const id = document.getElementById('inputId').value.toUpperCase();
+            const join = document.getElementById('inputJoin').value; // Ambil nilai join
             
             document.getElementById('cardName').innerText = name || 'NAMA MEMBER';
             document.getElementById('cardId').innerText = id || 'M-000000';
             document.getElementById('cardLevelText').innerText = level + ' MEMBER';
+            document.getElementById('cardJoin').innerText = join || 'Des 2023'; // Update di kartu
             
             const preview = document.getElementById('card-preview');
-            preview.className = `level-${level}`; // Reset class
+            preview.className = `level-${level}`; 
 
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = "";
@@ -237,12 +234,13 @@
             const data = { 
                 id: document.getElementById('inputId').value, 
                 nik: document.getElementById('inputNIK').value, 
-                name: document.getElementById('inputName').value 
+                name: document.getElementById('inputName').value,
+                join: document.getElementById('inputJoin').value
             };
             let db = getDatabase();
             db.push(data);
             localStorage.setItem('memberDB_Final', JSON.stringify(db));
-            alert("Data Tersimpan di Windows ini!");
+            alert("Data Berhasil Disimpan!");
         }
 
         function downloadHD() {
@@ -255,7 +253,6 @@
                 backgroundColor: null,
                 useCORS: true,
                 allowTaint: true,
-                // Matikan fitur yang sering bug di Windows
                 letterRendering: false 
             }).then(canvas => {
                 const link = document.createElement('a');
