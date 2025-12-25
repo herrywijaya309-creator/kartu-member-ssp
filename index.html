@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Card - Sumber Sari Patimura V22</title>
+    <title>Member Card V23 - Windows Compatible</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
+        /* Reset CSS agar konsisten */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
 
         #card-wrapper {
@@ -20,53 +23,88 @@
         #card-preview {
             width: 600px; height: 378px; position: relative;
             border-radius: 24px; overflow: hidden; border: none;
-            box-sizing: border-box;
+            /* Flexbox utama untuk layout vertikal yang rapi */
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 40px; /* Padding aman dari pinggir */
         }
 
-        /* --- STYLING NAMA TOKO (FIXED: NO BACKGROUND CLIP TO AVOID BLOCKS) --- */
+        /* --- BAGIAN ATAS (Brand & Badge) --- */
+        .top-section {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            z-index: 10; position: relative;
+        }
+
         .brand-name {
             font-family: 'Oswald', sans-serif;
             font-size: 32px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            line-height: 1.2; /* Jarak baris aman untuk Windows */
             white-space: nowrap;
-            /* Menggunakan warna solid yang menyerupai emas untuk stabilitas download */
+            /* Warna default Emas */
             color: #FFD700; 
-            -webkit-background-clip: unset;
-            -webkit-text-fill-color: currentColor;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
-        /* --- BADGE LEVEL --- */
-        .badge-outer { margin-top: 4px; display: flex; align-items: center; }
+        .badge-container {
+            margin-top: 5px;
+            display: flex;
+        }
+
         #cardLevelText {
             font-size: 14px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.35em; color: white; line-height: 1;
+            letter-spacing: 0.35em; color: white;
+            line-height: 1.4; /* Longgarkan agar tidak terpotong */
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        /* --- NAMA PEMEGANG --- */
-        .holder-label { font-size: 10px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 600; margin-bottom: 4px; display: block; }
-        #cardName {
-            font-size: 38px; font-weight: 800; line-height: 1.2;
-            margin: 0; white-space: nowrap; display: block;
-            text-shadow: 0 2px 15px rgba(0,0,0,0.4);
-            max-width: 380px; overflow: hidden; text-overflow: ellipsis;
-            padding-bottom: 15px; margin-bottom: -15px;
+        /* --- BAGIAN BAWAH (Nama & Info) --- */
+        .bottom-section {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            z-index: 10; position: relative;
         }
 
-        /* --- THEMES (FIX WARNA BRAND AGAR TIDAK BLOCKY) --- */
+        .info-group { flex: 1; }
+
+        .holder-label {
+            font-size: 10px; opacity: 0.75; text-transform: uppercase;
+            letter-spacing: 0.2em; font-weight: 600; 
+            display: block; margin-bottom: 5px;
+        }
+
+        #cardName {
+            font-family: 'Inter', sans-serif;
+            font-size: 38px; font-weight: 800; 
+            line-height: 1.2; /* WAJIB 1.2 DI WINDOWS AGAR TIDAK KEPOTONG */
+            white-space: nowrap; 
+            text-shadow: 0 2px 15px rgba(0,0,0,0.4);
+            /* Hapus margin negatif yang merusak layout Windows */
+            margin: 0; padding: 0;
+            display: block;
+            width: 100%;
+            overflow: visible; /* Biarkan teks terlihat meski font Windows lebar */
+        }
+
+        .meta-info {
+            display: flex; gap: 40px; margin-top: 20px;
+        }
+
+        .meta-label { font-size: 9px; opacity: 60%; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
+        .meta-value { font-family: monospace; font-size: 20px; font-weight: 700; line-height: 1; }
+        .meta-value-join { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 700; line-height: 1; }
+
+        /* --- THEMES --- */
         .level-bronze { background: linear-gradient(135deg, #8E5C38 0%, #C9966D 100%); }
-        .level-bronze .brand-name { color: #F5F5F5; } /* Putih Kristal */
+        .level-bronze .brand-name { color: #F5F5F5; } /* Putih di Bronze */
 
         .level-silver { background: linear-gradient(135deg, #F5F7FA 0%, #B8C6DB 100%); color: #1a202c; }
-        .level-silver .brand-name { color: #2c3e50; } 
-        .level-silver #cardLevelText, .level-silver #cardName, .level-silver .holder-label, .level-silver #cardId, .level-silver .since-text { color: #1a202c; text-shadow: none; }
+        .level-silver .brand-name { color: #2c3e50; }
+        .level-silver #cardLevelText, .level-silver #cardName, .level-silver .holder-label, .level-silver .meta-value, .level-silver .meta-value-join { color: #1a202c; text-shadow: none; }
 
         .level-gold { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); color: #3e2b00; }
         .level-gold .brand-name { color: #422a02; }
-        .level-gold #cardLevelText, .level-gold #cardName, .level-gold .holder-label, .level-gold #cardId, .level-gold .since-text { color: #422a02; text-shadow: none; }
+        .level-gold #cardLevelText, .level-gold #cardName, .level-gold .holder-label, .level-gold .meta-value, .level-gold .meta-value-join { color: #422a02; text-shadow: none; }
 
         .level-platinum { background: linear-gradient(135deg, #434343 0%, #000000 100%); }
         .level-platinum .brand-name { color: #FFD700; }
@@ -122,13 +160,13 @@
 
         <div class="lg:col-span-8 flex flex-col items-center justify-center">
             <div id="card-wrapper">
-                <div id="card-preview" class="level-bronze p-10 flex flex-col justify-between relative">
+                <div id="card-preview" class="level-bronze">
                     <div class="shine-layer"></div>
                     
-                    <div class="flex justify-between items-start z-10 relative">
+                    <div class="top-section">
                         <div>
                             <div class="brand-name italic">SUMBER SARI PATIMURA</div>
-                            <div class="badge-outer">
+                            <div class="badge-container">
                                 <span id="cardLevelText">BRONZE MEMBER</span>
                             </div>
                         </div>
@@ -137,22 +175,28 @@
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-end z-10 relative">
-                        <div class="flex-1">
+                    <div class="bottom-section">
+                        <div class="info-group">
                             <span class="holder-label">Card Holder</span>
                             <h2 id="cardName">HERRY WIJAYA</h2>
-                            <div class="flex gap-10 mt-6">
-                                <div><p class="text-[9px] opacity-60 uppercase font-bold since-text">ID Member</p><p id="cardId" class="font-mono text-2xl font-bold">M-882190</p></div>
-                                <div><p class="text-[9px] opacity-60 uppercase font-bold since-text">Joined</p><p class="text-2xl font-bold since-text">Des 2023</p></div>
+                            <div class="meta-info">
+                                <div>
+                                    <p class="meta-label">ID Member</p>
+                                    <p id="cardId" class="meta-value">M-882190</p>
+                                </div>
+                                <div>
+                                    <p class="meta-label">Joined</p>
+                                    <p class="meta-value-join">Des 2023</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-white p-2 rounded-2xl shadow-xl">
+                        <div class="bg-white p-2 rounded-2xl shadow-xl shrink-0">
                             <div id="qrcode"></div>
                         </div>
                     </div>
                 </div>
             </div>
-            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V22: Fixed Text Rendering Engine</p>
+            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V23: Windows Compatible Layout</p>
         </div>
     </div>
 
@@ -177,18 +221,27 @@
             const level = document.getElementById('inputLevel').value;
             const name = document.getElementById('inputName').value.toUpperCase();
             const id = document.getElementById('inputId').value.toUpperCase();
+            
             document.getElementById('cardName').innerText = name || 'NAMA MEMBER';
             document.getElementById('cardId').innerText = id || 'M-000000';
             document.getElementById('cardLevelText').innerText = level + ' MEMBER';
+            
             const preview = document.getElementById('card-preview');
-            preview.className = `level-${level} p-10 flex flex-col justify-between relative`;
+            // Menghapus semua class level lama dan menambah yang baru
+            preview.className = ''; 
+            preview.classList.add('level-' + level);
+
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = "";
             new QRCode(qrContainer, { text: id, width: 80, height: 80 });
         }
 
         function saveToDatabase() {
-            const data = { id: document.getElementById('inputId').value, nik: document.getElementById('inputNIK').value, name: document.getElementById('inputName').value };
+            const data = { 
+                id: document.getElementById('inputId').value, 
+                nik: document.getElementById('inputNIK').value, 
+                name: document.getElementById('inputName').value 
+            };
             let db = getDatabase();
             db.push(data);
             localStorage.setItem('memberDB_Final', JSON.stringify(db));
@@ -200,13 +253,12 @@
             const btn = event.currentTarget;
             btn.innerHTML = "⏳ RENDERING..."; btn.disabled = true;
             
-            // Menggunakan html2canvas dengan opsi yang meminimalkan glitch pada teks
             html2canvas(card, { 
                 scale: 4, 
                 backgroundColor: null, 
                 useCORS: true,
                 allowTaint: true,
-                letterRendering: true // Mengoptimalkan render teks
+                letterRendering: true
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Member_SS_Patimura_${document.getElementById('inputId').value}.png`;
