@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Card V23 - Windows Compatible</title>
+    <title>Member Card - Sumber Sari Patimura V24</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Reset CSS agar konsisten */
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        
+        /* RESET CSS UNTUK WINDOWS */
+        * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
 
         #card-wrapper {
@@ -23,100 +22,101 @@
         #card-preview {
             width: 600px; height: 378px; position: relative;
             border-radius: 24px; overflow: hidden; border: none;
-            /* Flexbox utama untuk layout vertikal yang rapi */
+            /* Flexbox Layout yang Aman */
             display: flex; flex-direction: column; justify-content: space-between;
-            padding: 40px; /* Padding aman dari pinggir */
+            padding: 40px;
         }
 
-        /* --- BAGIAN ATAS (Brand & Badge) --- */
-        .top-section {
-            display: flex; justify-content: space-between; align-items: flex-start;
-            z-index: 10; position: relative;
+        /* --- BACKGROUND SHINE (LAYER PALING BAWAH) --- */
+        .shine-layer {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(125deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0) 55%);
+            z-index: 1; /* Pastikan di bawah teks */
+            pointer-events: none;
         }
 
+        /* --- KONTAINER KONTEN (LAYER PALING ATAS) --- */
+        /* Ini kunci agar teks muncul di Windows: Z-Index tinggi */
+        .card-content-layer {
+            position: relative;
+            z-index: 50; /* Jauh di atas background */
+            width: 100%;
+        }
+
+        /* --- STYLING NAMA TOKO (SOLID COLOR FIX) --- */
         .brand-name {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Oswald', Arial, sans-serif;
             font-size: 32px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            line-height: 1.2; /* Jarak baris aman untuk Windows */
             white-space: nowrap;
-            /* Warna default Emas */
+            line-height: 1.2;
+            /* Ganti Gradient dengan Solid Color agar tidak hilang/blocky */
             color: #FFD700; 
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
 
-        .badge-container {
-            margin-top: 5px;
-            display: flex;
+        /* --- BADGE LEVEL --- */
+        .badge-outer { 
+            margin-top: 8px; 
+            display: flex; align-items: center; justify-content: flex-start;
         }
-
         #cardLevelText {
+            font-family: 'Inter', Arial, sans-serif;
             font-size: 14px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.35em; color: white;
-            line-height: 1.4; /* Longgarkan agar tidak terpotong */
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            letter-spacing: 0.35em; color: white; line-height: 1.2;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
         }
 
-        /* --- BAGIAN BAWAH (Nama & Info) --- */
-        .bottom-section {
-            display: flex; justify-content: space-between; align-items: flex-end;
-            z-index: 10; position: relative;
+        /* --- NAMA PEMEGANG & INFO --- */
+        .holder-label { 
+            font-size: 10px; opacity: 0.8; text-transform: uppercase; 
+            letter-spacing: 0.2em; font-weight: 600; margin-bottom: 5px; display: block;
+            color: white;
         }
-
-        .info-group { flex: 1; }
-
-        .holder-label {
-            font-size: 10px; opacity: 0.75; text-transform: uppercase;
-            letter-spacing: 0.2em; font-weight: 600; 
-            display: block; margin-bottom: 5px;
-        }
-
+        
         #cardName {
-            font-family: 'Inter', sans-serif;
-            font-size: 38px; font-weight: 800; 
-            line-height: 1.2; /* WAJIB 1.2 DI WINDOWS AGAR TIDAK KEPOTONG */
-            white-space: nowrap; 
-            text-shadow: 0 2px 15px rgba(0,0,0,0.4);
-            /* Hapus margin negatif yang merusak layout Windows */
-            margin: 0; padding: 0;
-            display: block;
-            width: 100%;
-            overflow: visible; /* Biarkan teks terlihat meski font Windows lebar */
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 38px; font-weight: 800; line-height: 1.2;
+            margin: 0; white-space: nowrap; display: block;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            padding-bottom: 5px;
+            color: white; /* Paksa warna putih */
         }
 
-        .meta-info {
-            display: flex; gap: 40px; margin-top: 20px;
-        }
-
-        .meta-label { font-size: 9px; opacity: 60%; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
-        .meta-value { font-family: monospace; font-size: 20px; font-weight: 700; line-height: 1; }
-        .meta-value-join { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 700; line-height: 1; }
+        .meta-info { display: flex; gap: 40px; margin-top: 20px; }
+        .meta-label { font-size: 9px; opacity: 0.8; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; color: white;}
+        .meta-value { font-family: monospace; font-size: 20px; font-weight: 700; line-height: 1; color: white; }
 
         /* --- THEMES --- */
         .level-bronze { background: linear-gradient(135deg, #8E5C38 0%, #C9966D 100%); }
-        .level-bronze .brand-name { color: #F5F5F5; } /* Putih di Bronze */
+        /* Fix Bronze: Brand Putih Solid */
+        .level-bronze .brand-name { color: #FFFFFF; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
 
-        .level-silver { background: linear-gradient(135deg, #F5F7FA 0%, #B8C6DB 100%); color: #1a202c; }
-        .level-silver .brand-name { color: #2c3e50; }
-        .level-silver #cardLevelText, .level-silver #cardName, .level-silver .holder-label, .level-silver .meta-value, .level-silver .meta-value-join { color: #1a202c; text-shadow: none; }
+        .level-silver { background: linear-gradient(135deg, #F5F7FA 0%, #B8C6DB 100%); }
+        /* Fix Silver: Teks Gelap Solid */
+        .level-silver .brand-name { color: #2c3e50; filter: none; }
+        .level-silver #cardLevelText, .level-silver #cardName, .level-silver .holder-label, .level-silver .meta-label, .level-silver .meta-value { 
+            color: #1a202c !important; text-shadow: none; 
+        }
 
-        .level-gold { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); color: #3e2b00; }
-        .level-gold .brand-name { color: #422a02; }
-        .level-gold #cardLevelText, .level-gold #cardName, .level-gold .holder-label, .level-gold .meta-value, .level-gold .meta-value-join { color: #422a02; text-shadow: none; }
+        .level-gold { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
+        /* Fix Gold: Teks Cokelat Solid */
+        .level-gold .brand-name { color: #422a02; filter: none; }
+        .level-gold #cardLevelText, .level-gold #cardName, .level-gold .holder-label, .level-gold .meta-label, .level-gold .meta-value { 
+            color: #422a02 !important; text-shadow: none; 
+        }
 
         .level-platinum { background: linear-gradient(135deg, #434343 0%, #000000 100%); }
-        .level-platinum .brand-name { color: #FFD700; }
+        /* Platinum tetap Emas Solid */
 
         .level-diamond { background: radial-gradient(circle at 100% 0%, #00c6ff 0%, #0072ff 60%, #002a8f 100%); }
-        .level-diamond .brand-name { color: #FFD700; }
-
-        .level-infinite { background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%); color: #D4AF37; }
+        
+        .level-infinite { background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%); }
         .level-infinite .brand-name { color: #D4AF37; }
-        .level-infinite #cardLevelText, .level-infinite #cardName { color: #D4AF37; text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
+        .level-infinite #cardLevelText, .level-infinite #cardName { color: #D4AF37; }
 
-        .shine-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(125deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0) 55%); z-index: 1; pointer-events: none; }
     </style>
 </head>
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen bg-gray-900">
@@ -152,8 +152,8 @@
                     <input type="text" id="inputNIK" class="w-full p-2 border border-blue-100 bg-blue-50 rounded font-mono" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
                 </div>
                 <div class="grid grid-cols-2 gap-3 pt-4">
-                    <button onclick="saveToDatabase()" class="bg-green-600 text-white py-3 rounded-xl font-bold">💾 Simpan</button>
-                    <button onclick="downloadHD()" class="bg-indigo-600 text-white py-3 rounded-xl font-bold">📥 Download HD</button>
+                    <button onclick="saveToDatabase()" class="bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">💾 Simpan</button>
+                    <button onclick="downloadHD()" class="bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">📥 Download HD</button>
                 </div>
             </div>
         </div>
@@ -161,42 +161,41 @@
         <div class="lg:col-span-8 flex flex-col items-center justify-center">
             <div id="card-wrapper">
                 <div id="card-preview" class="level-bronze">
+                    
                     <div class="shine-layer"></div>
                     
-                    <div class="top-section">
-                        <div>
-                            <div class="brand-name italic">SUMBER SARI PATIMURA</div>
-                            <div class="badge-container">
-                                <span id="cardLevelText">BRONZE MEMBER</span>
+                    <div class="card-content-layer flex flex-col justify-between h-full">
+                        
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="brand-name italic">SUMBER SARI PATIMURA</div>
+                                <div class="badge-outer">
+                                    <span id="cardLevelText">BRONZE MEMBER</span>
+                                </div>
+                            </div>
+                            <div class="w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                             </div>
                         </div>
-                        <div class="w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                        </div>
-                    </div>
 
-                    <div class="bottom-section">
-                        <div class="info-group">
-                            <span class="holder-label">Card Holder</span>
-                            <h2 id="cardName">HERRY WIJAYA</h2>
-                            <div class="meta-info">
-                                <div>
-                                    <p class="meta-label">ID Member</p>
-                                    <p id="cardId" class="meta-value">M-882190</p>
-                                </div>
-                                <div>
-                                    <p class="meta-label">Joined</p>
-                                    <p class="meta-value-join">Des 2023</p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex-1">
+                                <span class="holder-label">Card Holder</span>
+                                <h2 id="cardName">HERRY WIJAYA</h2>
+                                <div class="meta-info">
+                                    <div><p class="meta-label">ID Member</p><p id="cardId" class="meta-value">M-882190</p></div>
+                                    <div><p class="meta-label">Joined</p><p class="meta-value">Des 2023</p></div>
                                 </div>
                             </div>
+                            <div class="bg-white p-2 rounded-2xl shadow-xl shrink-0">
+                                <div id="qrcode"></div>
+                            </div>
                         </div>
-                        <div class="bg-white p-2 rounded-2xl shadow-xl shrink-0">
-                            <div id="qrcode"></div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
-            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V23: Windows Compatible Layout</p>
+            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V24: Windows Safe Mode (Z-Index Fixed)</p>
         </div>
     </div>
 
@@ -227,9 +226,7 @@
             document.getElementById('cardLevelText').innerText = level + ' MEMBER';
             
             const preview = document.getElementById('card-preview');
-            // Menghapus semua class level lama dan menambah yang baru
-            preview.className = ''; 
-            preview.classList.add('level-' + level);
+            preview.className = `level-${level}`; // Reset class
 
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = "";
@@ -245,7 +242,7 @@
             let db = getDatabase();
             db.push(data);
             localStorage.setItem('memberDB_Final', JSON.stringify(db));
-            alert("Data Berhasil Disimpan!");
+            alert("Data Tersimpan di Windows ini!");
         }
 
         function downloadHD() {
@@ -253,12 +250,13 @@
             const btn = event.currentTarget;
             btn.innerHTML = "⏳ RENDERING..."; btn.disabled = true;
             
-            html2canvas(card, { 
-                scale: 4, 
-                backgroundColor: null, 
+            html2canvas(card, {
+                scale: 4,
+                backgroundColor: null,
                 useCORS: true,
                 allowTaint: true,
-                letterRendering: true
+                // Matikan fitur yang sering bug di Windows
+                letterRendering: false 
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Member_SS_Patimura_${document.getElementById('inputId').value}.png`;
@@ -268,7 +266,7 @@
             });
         }
 
-        window.onload = function() { updateCard(); };
+        window.onload = function() { generateUniqueRandomID(); };
     </script>
 </body>
 </html>
