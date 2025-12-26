@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Card - Sumber Sari Patimura V26 (Transparent Fix)</title>
+    <title>Member Card - Sumber Sari Patimura V27 (Die-Cut Fix)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -21,11 +21,12 @@
 
         #card-preview {
             width: 600px; height: 378px; position: relative;
-            border-radius: 24px; /* Radius ini yang akan kita potong nanti */
+            /* Border Radius 24px untuk tampilan di layar */
+            border-radius: 24px; 
             overflow: hidden; border: none;
             display: flex; flex-direction: column; justify-content: space-between;
             padding: 40px;
-            /* Penting: Pastikan background transparan */
+            /* Pastikan background container transparan */
             background-color: transparent; 
         }
 
@@ -36,7 +37,7 @@
             z-index: 1; pointer-events: none;
         }
 
-        /* --- KONTAINER KONTEN (Z-INDEX TINGGI) --- */
+        /* --- KONTAINER KONTEN --- */
         .card-content-layer { position: relative; z-index: 50; width: 100%; }
 
         /* --- STYLING NAMA TOKO (SOLID COLOR) --- */
@@ -118,7 +119,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3 pt-4">
                     <button onclick="saveToDatabase()" class="bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">💾 Simpan</button>
-                    <button onclick="downloadHD()" class="bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">📥 Download HD Transparent</button>
+                    <button onclick="downloadHDClean()" class="bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">📥 Download HD (Clean Cut)</button>
                 </div>
             </div>
         </div>
@@ -155,7 +156,7 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V26: Transparent Corners Fix</p>
+            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V27: Digital Die-Cut Technology</p>
         </div>
     </div>
 
@@ -208,52 +209,61 @@
             alert("Data Berhasil Disimpan!");
         }
 
-        // --- FUNGSI DOWNLOAD BARU DENGAN PEMOTONGAN TRANSPARAN ---
-        function downloadHD() {
+        // --- SISTEM PEMOTONGAN DIGITAL (DIE-CUT) ---
+        function downloadHDClean() {
             const card = document.getElementById('card-preview');
             const btn = event.currentTarget;
-            btn.innerHTML = "⏳ RENDERING & CUTTING..."; btn.disabled = true;
+            btn.innerHTML = "⏳ CUTTING & TRIMMING..."; btn.disabled = true;
             
-            // 1. Render kartu apa adanya (masih ada pojok putih)
             html2canvas(card, {
-                scale: 4, // Resolusi tinggi
-                backgroundColor: null, // Minta background transparan
+                scale: 4, 
+                backgroundColor: null, // Minta transparan dari awal
                 useCORS: true,
                 allowTaint: true,
                 letterRendering: false 
             }).then(sourceCanvas => {
-                // 2. Siapkan Kanvas Baru untuk memotong
                 const finalCanvas = document.createElement('canvas');
                 finalCanvas.width = sourceCanvas.width;
                 finalCanvas.height = sourceCanvas.height;
                 const ctx = finalCanvas.getContext('2d');
 
-                // 3. Buat Jalur Pemotongan (Rounded Rectangle)
-                // Radius di CSS adalah 24px, dikali scale 4 = 96px
-                const radius = 24 * 4; 
+                // 1. Gambar dulu hasil foto kartu apa adanya
+                ctx.drawImage(sourceCanvas, 0, 0);
+
+                // 2. Teknik Komposisi: 'destination-in'
+                // Ini artinya: "Hanya pertahankan gambar yang tumpang tindih dengan bentuk yang akan saya gambar selanjutnya"
+                ctx.globalCompositeOperation = 'destination-in';
+
+                // 3. Gambar bentuk "Topeng" (Mask) dengan sudut bulat sempurna
+                const radius = 24 * 4; // 24px * scale 4 = 96px
+                const w = finalCanvas.width;
+                const h = finalCanvas.height;
+                
                 ctx.beginPath();
                 ctx.moveTo(radius, 0);
-                ctx.lineTo(finalCanvas.width - radius, 0);
-                ctx.quadraticCurveTo(finalCanvas.width, 0, finalCanvas.width, radius);
-                ctx.lineTo(finalCanvas.width, finalCanvas.height - radius);
-                ctx.quadraticCurveTo(finalCanvas.width, finalCanvas.height, finalCanvas.width - radius, finalCanvas.height);
-                ctx.lineTo(radius, finalCanvas.height);
-                ctx.quadraticCurveTo(0, finalCanvas.height, 0, finalCanvas.height - radius);
+                ctx.lineTo(w - radius, 0);
+                ctx.quadraticCurveTo(w, 0, w, radius);
+                ctx.lineTo(w, h - radius);
+                ctx.quadraticCurveTo(w, h, w - radius, h);
+                ctx.lineTo(radius, h);
+                ctx.quadraticCurveTo(0, h, 0, h - radius);
                 ctx.lineTo(0, radius);
                 ctx.quadraticCurveTo(0, 0, radius, 0);
                 ctx.closePath();
+                
+                // Isi bentuk topeng dengan warna solid (warna apa saja bisa, yang penting solid)
+                ctx.fillStyle = '#000000';
+                ctx.fill();
 
-                // 4. Potong dan Gambar
-                ctx.clip(); // Instruksi untuk memotong area di luar jalur di atas
-                ctx.drawImage(sourceCanvas, 0, 0); // Gambar hasil render ke dalam area yang sudah dipotong
+                // 4. Reset komposisi (untuk keamanan, meski tidak dipakai lagi di sini)
+                ctx.globalCompositeOperation = 'source-over';
 
-                // 5. Download Hasil Akhir
+                // 5. Download hasilnya
                 const link = document.createElement('a');
                 link.download = `Member_SS_Patimura_${document.getElementById('inputId').value}.png`;
-                // Gunakan finalCanvas, bukan sourceCanvas
-                link.href = finalCanvas.toDataURL("image/png"); 
+                link.href = finalCanvas.toDataURL("image/png");
                 link.click();
-                btn.innerHTML = "📥 Download HD Transparent"; btn.disabled = false;
+                btn.innerHTML = "📥 Download HD (Clean Cut)"; btn.disabled = false;
             });
         }
 
