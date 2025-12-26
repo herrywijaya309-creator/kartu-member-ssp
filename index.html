@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Card - Sumber Sari Patimura V25</title>
+    <title>Member Card - Sumber Sari Patimura V26 (Transparent Fix)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -21,10 +21,12 @@
 
         #card-preview {
             width: 600px; height: 378px; position: relative;
-            border-radius: 24px; overflow: hidden; border: none;
-            /* Flexbox Layout yang Aman */
+            border-radius: 24px; /* Radius ini yang akan kita potong nanti */
+            overflow: hidden; border: none;
             display: flex; flex-direction: column; justify-content: space-between;
             padding: 40px;
+            /* Penting: Pastikan background transparan */
+            background-color: transparent; 
         }
 
         /* --- BACKGROUND SHINE --- */
@@ -35,53 +37,29 @@
         }
 
         /* --- KONTAINER KONTEN (Z-INDEX TINGGI) --- */
-        .card-content-layer {
-            position: relative;
-            z-index: 50; 
-            width: 100%;
-        }
+        .card-content-layer { position: relative; z-index: 50; width: 100%; }
 
         /* --- STYLING NAMA TOKO (SOLID COLOR) --- */
         .brand-name {
-            font-family: 'Oswald', Arial, sans-serif;
-            font-size: 32px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
-            line-height: 1.2;
-            color: #FFD700; 
+            font-family: 'Oswald', Arial, sans-serif; font-size: 32px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.05em; white-space: nowrap; line-height: 1.2; color: #FFD700; 
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
 
         /* --- BADGE LEVEL --- */
-        .badge-outer { 
-            margin-top: 8px; 
-            display: flex; align-items: center; justify-content: flex-start;
-        }
+        .badge-outer { margin-top: 8px; display: flex; align-items: center; justify-content: flex-start; }
         #cardLevelText {
-            font-family: 'Inter', Arial, sans-serif;
-            font-size: 14px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.35em; color: white; line-height: 1.2;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+            font-family: 'Inter', Arial, sans-serif; font-size: 14px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.35em; color: white; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.6);
         }
 
         /* --- NAMA PEMEGANG & INFO --- */
-        .holder-label { 
-            font-size: 10px; opacity: 0.8; text-transform: uppercase; 
-            letter-spacing: 0.2em; font-weight: 600; margin-bottom: 5px; display: block;
-            color: white;
-        }
-        
+        .holder-label { font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 600; margin-bottom: 5px; display: block; color: white; }
         #cardName {
-            font-family: 'Inter', Arial, sans-serif;
-            font-size: 38px; font-weight: 800; line-height: 1.2;
-            margin: 0; white-space: nowrap; display: block;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            padding-bottom: 5px;
-            color: white; 
+            font-family: 'Inter', Arial, sans-serif; font-size: 38px; font-weight: 800; line-height: 1.2;
+            margin: 0; white-space: nowrap; display: block; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            padding-bottom: 5px; color: white; 
         }
-
         .meta-info { display: flex; gap: 40px; margin-top: 20px; }
         .meta-label { font-size: 9px; opacity: 0.8; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; color: white;}
         .meta-value { font-family: monospace; font-size: 20px; font-weight: 700; line-height: 1; color: white; }
@@ -89,26 +67,17 @@
         /* --- THEMES --- */
         .level-bronze { background: linear-gradient(135deg, #8E5C38 0%, #C9966D 100%); }
         .level-bronze .brand-name { color: #FFFFFF; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-
         .level-silver { background: linear-gradient(135deg, #F5F7FA 0%, #B8C6DB 100%); }
         .level-silver .brand-name { color: #2c3e50; filter: none; }
-        .level-silver #cardLevelText, .level-silver #cardName, .level-silver .holder-label, .level-silver .meta-label, .level-silver .meta-value { 
-            color: #1a202c !important; text-shadow: none; 
-        }
-
+        .level-silver #cardLevelText, .level-silver #cardName, .level-silver .holder-label, .level-silver .meta-label, .level-silver .meta-value { color: #1a202c !important; text-shadow: none; }
         .level-gold { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
         .level-gold .brand-name { color: #422a02; filter: none; }
-        .level-gold #cardLevelText, .level-gold #cardName, .level-gold .holder-label, .level-gold .meta-label, .level-gold .meta-value { 
-            color: #422a02 !important; text-shadow: none; 
-        }
-
+        .level-gold #cardLevelText, .level-gold #cardName, .level-gold .holder-label, .level-gold .meta-label, .level-gold .meta-value { color: #422a02 !important; text-shadow: none; }
         .level-platinum { background: linear-gradient(135deg, #434343 0%, #000000 100%); }
         .level-diamond { background: radial-gradient(circle at 100% 0%, #00c6ff 0%, #0072ff 60%, #002a8f 100%); }
-        
         .level-infinite { background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%); }
         .level-infinite .brand-name { color: #D4AF37; }
         .level-infinite #cardLevelText, .level-infinite #cardName { color: #D4AF37; }
-
     </style>
 </head>
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen bg-gray-900">
@@ -149,7 +118,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3 pt-4">
                     <button onclick="saveToDatabase()" class="bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">💾 Simpan</button>
-                    <button onclick="downloadHD()" class="bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">📥 Download HD</button>
+                    <button onclick="downloadHD()" class="bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">📥 Download HD Transparent</button>
                 </div>
             </div>
         </div>
@@ -158,9 +127,7 @@
             <div id="card-wrapper">
                 <div id="card-preview" class="level-bronze">
                     <div class="shine-layer"></div>
-                    
                     <div class="card-content-layer flex flex-col justify-between h-full">
-                        
                         <div class="flex justify-between items-start">
                             <div>
                                 <div class="brand-name italic">SUMBER SARI PATIMURA</div>
@@ -172,7 +139,6 @@
                                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                             </div>
                         </div>
-
                         <div class="flex justify-between items-end">
                             <div class="flex-1">
                                 <span class="holder-label">Card Holder</span>
@@ -186,11 +152,10 @@
                                 <div id="qrcode"></div>
                             </div>
                         </div>
-                        
                     </div>
                 </div>
             </div>
-            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V25: Joined Date Unlocked</p>
+            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V26: Transparent Corners Fix</p>
         </div>
     </div>
 
@@ -215,12 +180,12 @@
             const level = document.getElementById('inputLevel').value;
             const name = document.getElementById('inputName').value.toUpperCase();
             const id = document.getElementById('inputId').value.toUpperCase();
-            const join = document.getElementById('inputJoin').value; // Ambil nilai join
+            const join = document.getElementById('inputJoin').value;
             
             document.getElementById('cardName').innerText = name || 'NAMA MEMBER';
             document.getElementById('cardId').innerText = id || 'M-000000';
             document.getElementById('cardLevelText').innerText = level + ' MEMBER';
-            document.getElementById('cardJoin').innerText = join || 'Des 2023'; // Update di kartu
+            document.getElementById('cardJoin').innerText = join || 'Des 2023';
             
             const preview = document.getElementById('card-preview');
             preview.className = `level-${level}`; 
@@ -243,23 +208,52 @@
             alert("Data Berhasil Disimpan!");
         }
 
+        // --- FUNGSI DOWNLOAD BARU DENGAN PEMOTONGAN TRANSPARAN ---
         function downloadHD() {
             const card = document.getElementById('card-preview');
             const btn = event.currentTarget;
-            btn.innerHTML = "⏳ RENDERING..."; btn.disabled = true;
+            btn.innerHTML = "⏳ RENDERING & CUTTING..."; btn.disabled = true;
             
+            // 1. Render kartu apa adanya (masih ada pojok putih)
             html2canvas(card, {
-                scale: 4,
-                backgroundColor: null,
+                scale: 4, // Resolusi tinggi
+                backgroundColor: null, // Minta background transparan
                 useCORS: true,
                 allowTaint: true,
                 letterRendering: false 
-            }).then(canvas => {
+            }).then(sourceCanvas => {
+                // 2. Siapkan Kanvas Baru untuk memotong
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = sourceCanvas.width;
+                finalCanvas.height = sourceCanvas.height;
+                const ctx = finalCanvas.getContext('2d');
+
+                // 3. Buat Jalur Pemotongan (Rounded Rectangle)
+                // Radius di CSS adalah 24px, dikali scale 4 = 96px
+                const radius = 24 * 4; 
+                ctx.beginPath();
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(finalCanvas.width - radius, 0);
+                ctx.quadraticCurveTo(finalCanvas.width, 0, finalCanvas.width, radius);
+                ctx.lineTo(finalCanvas.width, finalCanvas.height - radius);
+                ctx.quadraticCurveTo(finalCanvas.width, finalCanvas.height, finalCanvas.width - radius, finalCanvas.height);
+                ctx.lineTo(radius, finalCanvas.height);
+                ctx.quadraticCurveTo(0, finalCanvas.height, 0, finalCanvas.height - radius);
+                ctx.lineTo(0, radius);
+                ctx.quadraticCurveTo(0, 0, radius, 0);
+                ctx.closePath();
+
+                // 4. Potong dan Gambar
+                ctx.clip(); // Instruksi untuk memotong area di luar jalur di atas
+                ctx.drawImage(sourceCanvas, 0, 0); // Gambar hasil render ke dalam area yang sudah dipotong
+
+                // 5. Download Hasil Akhir
                 const link = document.createElement('a');
                 link.download = `Member_SS_Patimura_${document.getElementById('inputId').value}.png`;
-                link.href = canvas.toDataURL("image/png");
+                // Gunakan finalCanvas, bukan sourceCanvas
+                link.href = finalCanvas.toDataURL("image/png"); 
                 link.click();
-                btn.innerHTML = "📥 Download HD"; btn.disabled = false;
+                btn.innerHTML = "📥 Download HD Transparent"; btn.disabled = false;
             });
         }
 
