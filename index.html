@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member System V28 - Cloud Database (Firebase)</title>
+    <title>Member Card - Sumber Sari Patimura V29 (Cloud Fix)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -13,34 +13,34 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // --- KONFIGURASI FIREBASE ANDA ---
+        // PERHATIAN: Ganti bagian "..." dengan kode lengkap dari console Firebase Anda jika masih terpotong!
         const firebaseConfig = {
-  apiKey: "AIzaSyBwt3_...",
-  authDomain: "member-maker.firebaseapp.com",
-  projectId: "member-maker",
-  storageBucket: "member-maker.firebasestorage.app",
-  messagingSenderId: "308789847310",
-  appId: "1:308789847310:web:...",
-  measurementId: "G-FVTSQ7DL67"
-};
-        // (Salin dari Console Firebase > Project Settings)
-        const firebaseConfig = {
-            apiKey: "AIzaSyD...", 
-            authDomain: "...",
-            projectId: "...",
-            storageBucket: "...",
-            messagingSenderId: "...",
-            appId: "..."
+            apiKey: "AIzaSyBwt3_...",  // <--- PASTIKAN INI LENGKAP (JANGAN ADA TITIK-TITIK)
+            authDomain: "member-maker.firebaseapp.com",
+            projectId: "member-maker",
+            storageBucket: "member-maker.firebasestorage.app",
+            messagingSenderId: "308789847310",
+            appId: "1:308789847310:web:...", // <--- PASTIKAN INI LENGKAP (JANGAN ADA TITIK-TITIK)
+            measurementId: "G-FVTSQ7DL67"
         };
-        // ---------------------------------------------------
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Inisialisasi (Coba tangkap error jika config salah)
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            console.log("Firebase berhasil diinisialisasi");
+        } catch (error) {
+            alert("Error Config Firebase: " + error.message + "\n\nCek kembali API Key dan App ID di kode!");
+        }
 
-        // Expose fungsi ke window agar bisa dipanggil tombol HTML
+        // Fungsi Simpan ke Cloud (Dibuat Global agar bisa diklik tombol)
         window.saveToCloud = async function() {
             const btn = document.getElementById('btnSave');
-            btn.innerHTML = "⏳ MENYIMPAN KE CLOUD..."; btn.disabled = true;
+            
+            // Cek apakah DB aktif
+            if (!db) { alert("Database belum siap. Cek Config Firebase Anda."); return; }
 
             const id = document.getElementById('inputId').value;
             const nik = document.getElementById('inputNIK').value;
@@ -48,53 +48,68 @@
             const level = document.getElementById('inputLevel').value;
             const join = document.getElementById('inputJoin').value;
 
-            if(!nik || !name){ alert("Nama dan NIK wajib diisi!"); btn.innerHTML = "💾 Simpan ke Cloud"; btn.disabled = false; return; }
+            // Validasi Sederhana
+            if(!nik || !name || name === "NAMA MEMBER"){ 
+                alert("Mohon lengkapi Nama dan NIK terlebih dahulu!"); 
+                return; 
+            }
+
+            btn.innerHTML = "⏳ MENYIMPAN..."; btn.disabled = true;
 
             try {
-                // Cek apakah ID sudah ada
+                // 1. Cek Duplikat ID
                 const q = query(collection(db, "members"), where("id", "==", id));
                 const querySnapshot = await getDocs(q);
 
                 if (!querySnapshot.empty) {
-                    alert("ID Member ini sudah terdaftar di Cloud! Silakan Reroll ID.");
+                    alert("⛔ GAGAL: ID Member '" + id + "' sudah terdaftar di Cloud!\nSilakan tekan tombol ↻ untuk buat ID baru.");
                     btn.innerHTML = "💾 Simpan ke Cloud"; btn.disabled = false;
                     return;
                 }
 
-                // Simpan Data
+                // 2. Simpan Data
                 await addDoc(collection(db, "members"), {
                     id: id,
                     nik: nik,
                     name: name,
                     level: level,
                     join: join,
-                    createdAt: new Date()
+                    createdAt: new Date().toISOString() // Simpan waktu pembuatan
                 });
 
-                alert("✅ Data Berhasil Disimpan di Cloud (Aman)!");
+                alert("✅ SUKSES! Data Member " + name + " berhasil disimpan di Cloud.");
+                
             } catch (e) {
-                console.error("Error adding document: ", e);
-                alert("Gagal menyimpan: " + e.message);
+                console.error("Firebase Error:", e);
+                // Tampilkan pesan error spesifik ke layar
+                if (e.message.includes("Missing or insufficient permissions")) {
+                    alert("⛔ AKSES DITOLAK: Database terkunci.\nPastikan Anda sudah mengubah 'Firestore Rules' menjadi 'allow read, write: if true;' di Console Firebase.");
+                } else {
+                    alert("⛔ ERROR: " + e.message);
+                }
             }
             btn.innerHTML = "💾 Simpan ke Cloud"; btn.disabled = false;
-        }
-
-        // Fungsi Cek Database Global untuk ID Unik
-        window.checkCloudID = async function(generatedID) {
-            const q = query(collection(db, "members"), where("id", "==", generatedID));
-            const querySnapshot = await getDocs(q);
-            return !querySnapshot.empty; // Return true jika ada duplikat
         }
     </script>
 
     <style>
-        /* CSS SAMA SEPERTI V27 (Die-Cut Fix) */
+        /* RESET CSS UNTUK WINDOWS & LAYOUT */
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
         #card-wrapper { padding: 0; margin: 0; display: inline-block; filter: drop-shadow(0 30px 50px rgba(0,0,0,0.7)); }
-        #card-preview { width: 600px; height: 378px; position: relative; border-radius: 24px; overflow: hidden; border: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; background-color: transparent; }
+        
+        #card-preview { 
+            width: 600px; height: 378px; position: relative; 
+            border-radius: 24px; overflow: hidden; border: none; 
+            display: flex; flex-direction: column; justify-content: space-between; 
+            padding: 40px; background-color: transparent; 
+        }
+
+        /* LAYERS */
         .shine-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(125deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0) 55%); z-index: 1; pointer-events: none; }
         .card-content-layer { position: relative; z-index: 50; width: 100%; }
+
+        /* TYPOGRAPHY */
         .brand-name { font-family: 'Oswald', Arial, sans-serif; font-size: 32px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; line-height: 1.2; color: #FFD700; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
         .badge-outer { margin-top: 8px; display: flex; align-items: center; justify-content: flex-start; }
         #cardLevelText { font-family: 'Inter', Arial, sans-serif; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.35em; color: white; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
@@ -103,6 +118,8 @@
         .meta-info { display: flex; gap: 40px; margin-top: 20px; }
         .meta-label { font-size: 9px; opacity: 0.8; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; color: white;}
         .meta-value { font-family: monospace; font-size: 20px; font-weight: 700; line-height: 1; color: white; }
+
+        /* THEMES */
         .level-bronze { background: linear-gradient(135deg, #8E5C38 0%, #C9966D 100%); } .level-bronze .brand-name { color: #FFFFFF; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
         .level-silver { background: linear-gradient(135deg, #F5F7FA 0%, #B8C6DB 100%); } .level-silver .brand-name { color: #2c3e50; filter: none; } .level-silver #cardLevelText, .level-silver #cardName, .level-silver .holder-label, .level-silver .meta-label, .level-silver .meta-value { color: #1a202c !important; text-shadow: none; }
         .level-gold { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); } .level-gold .brand-name { color: #422a02; filter: none; } .level-gold #cardLevelText, .level-gold #cardName, .level-gold .holder-label, .level-gold .meta-label, .level-gold .meta-value { color: #422a02 !important; text-shadow: none; }
@@ -140,7 +157,7 @@
                     <label class="text-[10px] font-bold text-gray-400 uppercase">ID Member</label>
                     <div class="flex gap-2">
                         <input type="text" id="inputId" class="w-full p-2 border border-orange-200 bg-orange-50 rounded font-mono font-bold" value="M-882190" oninput="updateCard()">
-                        <button onclick="generateUniqueRandomID()" class="px-4 bg-gray-200 rounded hover:bg-gray-300 font-bold">↻</button>
+                        <button onclick="generateUniqueRandomID()" class="px-4 bg-gray-200 rounded hover:bg-gray-300 font-bold" title="Reroll ID">↻</button>
                     </div>
                 </div>
                 <div>
@@ -186,17 +203,17 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V28: Cloud Database Enabled (Secure)</p>
+            <p class="text-gray-500 text-xs mt-6 uppercase tracking-widest font-bold">V29: Cloud Connected (Requires GitHub Pages)</p>
         </div>
     </div>
 
     <script>
+        // INPUT HANDLERS
         document.getElementById('inputNIK').addEventListener('input', function(e) {
             let v = e.target.value.replace(/\D/g,'').slice(0,16);
             e.target.value = v.replace(/(\d{4})(?=\d)/g, '$1-');
         });
 
-        // GENERATOR ID LOKAL (Cek duplikat cloud dilakukan saat save)
         function generateUniqueRandomID() {
             let r = Math.floor(Math.random() * 900000) + 100000;
             document.getElementById('inputId').value = "M-" + r;
@@ -222,6 +239,7 @@
             new QRCode(qrContainer, { text: id, width: 80, height: 80 });
         }
 
+        // DOWNLOAD CLEAN CUT FUNCTION
         function downloadHDClean() {
             const card = document.getElementById('card-preview');
             const btn = event.currentTarget;
@@ -235,10 +253,13 @@
                 finalCanvas.height = sourceCanvas.height;
                 const ctx = finalCanvas.getContext('2d');
                 ctx.drawImage(sourceCanvas, 0, 0);
+                
+                // Teknik Die-Cut
                 ctx.globalCompositeOperation = 'destination-in';
                 const radius = 24 * 4; const w = finalCanvas.width; const h = finalCanvas.height;
                 ctx.beginPath(); ctx.moveTo(radius, 0); ctx.lineTo(w - radius, 0); ctx.quadraticCurveTo(w, 0, w, radius); ctx.lineTo(w, h - radius); ctx.quadraticCurveTo(w, h, w - radius, h); ctx.lineTo(radius, h); ctx.quadraticCurveTo(0, h, 0, h - radius); ctx.lineTo(0, radius); ctx.quadraticCurveTo(0, 0, radius, 0); ctx.closePath();
                 ctx.fillStyle = '#000000'; ctx.fill();
+                
                 const link = document.createElement('a');
                 link.download = `Member_SS_Patimura_${document.getElementById('inputId').value}.png`;
                 link.href = finalCanvas.toDataURL("image/png");
